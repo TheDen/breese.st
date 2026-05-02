@@ -37,12 +37,44 @@ const WMO = {
 function wmo(c) { return WMO[c] || ['🌡️', 'Unknown']; }
 function degToCompass(d) { return ['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8]; }
 
+function realFeelText(temp, apparent, windKmh) {
+  let feel;
+  if (apparent <= 5)       feel = 'Very cold';
+  else if (apparent <= 10) feel = 'Cold';
+  else if (apparent <= 15) feel = 'Cool';
+  else if (apparent <= 20) feel = 'Comfortable';
+  else if (apparent <= 26) feel = 'Warm';
+  else if (apparent <= 32) feel = 'Hot';
+  else                     feel = 'Very hot';
+
+  let wind = '';
+  if (windKmh >= 40)      wind = ', very strong winds';
+  else if (windKmh >= 25) wind = ', strong winds';
+  else if (windKmh >= 15) wind = ', breezy';
+
+  let clothing;
+  if (apparent <= 8)       clothing = 'heavy coat';
+  else if (apparent <= 14) clothing = 'jacket';
+  else if (apparent <= 20) clothing = 'light layer';
+  else                     clothing = 'no jacket needed';
+
+  return `${feel}${wind} — ${clothing}`;
+}
+
+function uvLabel(uv) {
+  if (uv <= 2)  return ['Low',       'uv-low'];
+  if (uv <= 5)  return ['Moderate',  'uv-mod'];
+  if (uv <= 7)  return ['High',      'uv-high'];
+  if (uv <= 10) return ['Very High', 'uv-vhigh'];
+  return              ['Extreme',   'uv-extreme'];
+}
+
 async function loadWeather() {
   const el = document.getElementById('weather-content');
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LNG}`
       + `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m`
-      + `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,sunrise,sunset`
+      + `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,sunrise,sunset,uv_index_max`
       + `&timezone=${TZ}&forecast_days=2`;
     const d   = await (await fetch(url)).json();
     const c   = d.current, day = d.daily;
@@ -62,21 +94,32 @@ async function loadWeather() {
       : `Sunset ${fmtIso(day.sunset[0])}`;
     const sunIcon  = isDark ? '🌙' : '☀️';
 
+    const apparentRounded = Math.round(c.apparent_temperature);
+    const windRounded     = Math.round(c.wind_speed_10m);
+    const rfText          = escHtml(realFeelText(Math.round(c.temperature_2m), apparentRounded, windRounded));
+    const uvVal           = day.uv_index_max ? Math.round(day.uv_index_max[0]) : null;
+    const [uvText, uvCls] = uvVal !== null ? uvLabel(uvVal) : ['—', ''];
+    const uvRow           = uvVal !== null
+      ? `<div class="weather-row"><span>UV Index</span><span>${uvVal} — <span class="${uvCls}">${uvText}</span></span></div>`
+      : '';
+
     el.innerHTML = `
       <div class="weather-inner">
         <div class="weather-main">
           <div class="weather-icon">${icon}</div>
           <div>
             <div class="weather-temp">${Math.round(c.temperature_2m)}<span class="weather-unit">°C</span></div>
-            <div class="weather-feels">Feels ${Math.round(c.apparent_temperature)}°</div>
+            <div class="weather-feels">Feels ${apparentRounded}°</div>
             <div class="weather-desc">${desc}</div>
+            <div class="weather-realfeel">${rfText}</div>
           </div>
         </div>
         <div class="weather-stats">
           <div class="weather-row"><span>High / Low</span><span>${Math.round(day.temperature_2m_max[0])}° / ${Math.round(day.temperature_2m_min[0])}°</span></div>
-          <div class="weather-row"><span>Wind</span><span>${degToCompass(c.wind_direction_10m)} ${Math.round(c.wind_speed_10m)} km/h</span></div>
+          <div class="weather-row"><span>Wind</span><span>${degToCompass(c.wind_direction_10m)} ${windRounded} km/h</span></div>
           <div class="weather-row"><span>Rain today</span><span>${day.precipitation_sum[0]} mm</span></div>
           <div class="weather-row"><span>${isDark ? 'After dark' : 'Daylight'}</span><span class="sun-status">${sunIcon} ${sunLabel}</span></div>
+          ${uvRow}
         </div>
       </div>
       <div class="weather-tomorrow">
@@ -92,6 +135,94 @@ async function loadWeather() {
 }
 loadWeather();
 setInterval(loadWeather, 15 * 60_000);
+
+// ── Air Quality — Open-Meteo air quality API ──────────────────────────────
+function aqiLevel(aqi) {
+  if (aqi <= 20) return ['Good',      'aqi-good'];
+  if (aqi <= 40) return ['Fair',      'aqi-fair'];
+  if (aqi <= 60) return ['Moderate',  'aqi-mod'];
+  if (aqi <= 80) return ['Poor',      'aqi-poor'];
+  if (aqi <= 100) return ['Very Poor', 'aqi-vpoor'];
+  return                ['Extreme',   'aqi-extreme'];
+}
+
+function pollenLabel(v) {
+  if (v <= 5)  return 'Low';
+  if (v <= 20) return 'Moderate';
+  if (v <= 80) return 'High';
+  return 'Very High';
+}
+
+async function loadAirQuality() {
+  const el = document.getElementById('airquality-content');
+  try {
+    const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${LAT}&longitude=${LNG}`
+      + `&current=european_aqi,pm2_5,grass_pollen&timezone=${TZ}`;
+    const d = await (await fetch(url)).json();
+    const cur = d.current;
+    const aqi = Math.round(cur.european_aqi);
+    const pm25 = cur.pm2_5 != null ? cur.pm2_5.toFixed(1) : null;
+    const pollen = cur.grass_pollen != null ? Math.round(cur.grass_pollen) : null;
+
+    const [levelText, levelCls] = aqiLevel(aqi);
+    const pollenStr = pollen !== null
+      ? `<span class="${pollen > 20 ? 'pollen-high' : ''}">${escHtml(pollenLabel(pollen))} (${pollen})</span>`
+      : '—';
+    const pm25Str = pm25 !== null ? `${escHtml(pm25)} µg/m³` : '—';
+
+    el.className = '';
+    el.innerHTML = `
+      <div class="aq-grid">
+        <div class="aqi-badge ${levelCls}">${aqi}</div>
+        <div>
+          <div class="aq-label">${escHtml(levelText)}</div>
+          <div class="aq-sublabel">European AQI</div>
+        </div>
+      </div>
+      <div class="aq-stats">
+        <div class="aq-row"><span>PM2.5</span><span>${pm25Str}</span></div>
+        <div class="aq-row"><span>Grass Pollen</span><span>${pollenStr}</span></div>
+      </div>`;
+  } catch {
+    el.innerHTML = '<div class="loading">Air quality unavailable</div>';
+  }
+}
+
+// ── Community card ────────────────────────────────────────────────────────
+function buildCommunityCard() {
+  const el = document.getElementById('community-content');
+
+  const events = [
+    { label: "Merri-bek What's On",    sublabel: 'merri-bek.vic.gov.au',      href: 'https://www.merri-bek.vic.gov.au/exploring-merri-bek/events/whats-on/' },
+    { label: 'Eventbrite · Brunswick', sublabel: 'Upcoming events nearby',     href: 'https://www.eventbrite.com.au/d/australia--brunswick/events/' },
+  ];
+
+  const works = [
+    { label: 'VicRoads Live Traffic',  sublabel: 'Disruptions & roadworks',   href: 'https://traffic.transport.vic.gov.au/places?id=eyJkYXRhIjp7ImxvY2F0aW9uIjpbMTQ0Ljk2MjEzLC0zNy43NjcwNDhdLCJuYW1lIjoiQnJ1bnN3aWNrLCBWaWN0b3JpYSwgQXVzdHJhbGlhIiwibG9jYXRpb25UeXBlIjoibG9jYWxpdHkiLCJsb2NhdGlvbklkIjoiZFhKdU9tMWllSEJzWXpwRU0zTnhSR2MifSwiaGFzaCI6IjFkMjk0MGZkNjJkMzc3ZmMxNTM5YjMxOTM4ZTcxNTE5NzZmNDNkNzVhNmE1YWIyN2I2OWFmMzg2ODcxYWE5NzgifQ' },
+    { label: 'Merri-bek Council News', sublabel: 'Notices & announcements',   href: 'https://www.merri-bek.vic.gov.au/my-council/news-and-publications/news/' },
+  ];
+
+  function renderLinks(items) {
+    return items.map(item => `
+      <a class="community-link" href="${escHtml(item.href)}" target="_blank" rel="noopener noreferrer">
+        <div class="community-link-info">
+          <div class="community-link-label">${escHtml(item.label)}</div>
+          <div class="community-link-sublabel">${escHtml(item.sublabel)}</div>
+        </div>
+        <div class="community-link-arrow">↗</div>
+      </a>`).join('');
+  }
+
+  el.innerHTML = `
+    <div class="community-section">
+      <div class="community-section-title">🗓 Local Events</div>
+      <div class="community-links">${renderLinks(events)}</div>
+    </div>
+    <div class="community-section">
+      <div class="community-section-title">🚧 Works &amp; Notices</div>
+      <div class="community-links">${renderLinks(works)}</div>
+    </div>`;
+}
 
 // ── Open Now — Overpass API (no key required) ─────────────────────────────
 const AMENITY_GROUPS = {
@@ -381,3 +512,8 @@ distSlider.addEventListener('input', () => {
 buildKeywordChips();
 loadPlaces();
 setInterval(loadPlaces, 5*60_000);
+
+loadAirQuality();
+setInterval(loadAirQuality, 30 * 60_000);
+
+buildCommunityCard();
