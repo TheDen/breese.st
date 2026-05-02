@@ -9,8 +9,6 @@
   --border: #e5e2da;
   --shadow: 0 1px 3px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.05);
   --radius: 12px;
-  --blue: #1a3a6b;
-  --blue-bg: #eef2fa;
   --green: #1a5c35;
   --green-mid: #2e7d4f;
   --green-bg: #eaf4ee;
@@ -69,39 +67,19 @@ header {
   transition: color .15s, background .15s;
 }
 .icon-btn:hover { color: var(--text); background: var(--border); }
-.ptv-link {
-  font-size: 0.75rem;
-  color: var(--blue);
-  text-decoration: none;
-  border: 1px solid rgba(26,58,107,.2);
-  border-radius: 5px;
-  padding: 3px 8px;
-  white-space: nowrap;
-}
-.ptv-link:hover { background: var(--blue-bg); }
 
 /* ── Dashboard grid ── */
 .dashboard {
-  display: grid;
-  grid-template-columns: 1fr 240px;
-  grid-template-rows: auto auto;
+  display: flex;
+  flex-direction: column;
   gap: var(--gap);
   padding: var(--gap) 20px 32px;
   max-width: 960px;
   margin: 0 auto;
 }
-.card-transit { grid-column: 1; grid-row: 1; }
-.card-weather { grid-column: 2; grid-row: 1; }
-.card-places  { grid-column: 1 / 3; grid-row: 2; }
 
 @media (max-width: 640px) {
-  .dashboard {
-    grid-template-columns: 1fr;
-    padding: 12px;
-  }
-  .card-transit, .card-weather, .card-places { grid-column: 1; }
-  .card-weather { grid-row: 2; }
-  .card-places  { grid-row: 3; }
+  .dashboard { padding: 12px; }
 }
 
 /* ── Card ── */
@@ -131,109 +109,23 @@ header {
 }
 .error-msg a { color: var(--blue); }
 
-/* ── Transit card ── */
-.transit-group { margin-bottom: 16px; }
-.transit-group:last-child { margin-bottom: 0; }
-.transit-group-title {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  margin-bottom: 6px;
-}
-.transit-route {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: var(--blue-bg);
-  margin-bottom: 6px;
-}
-.transit-route:last-child { margin-bottom: 0; }
-.route-badge {
-  flex-shrink: 0;
-  background: var(--blue);
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
-  margin-top: 1px;
-  white-space: nowrap;
-}
-.route-info { flex: 1; min-width: 0; }
-.route-name {
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--blue);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.route-times {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 3px;
-}
-.dep-pill {
-  font-size: 0.78rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-2);
-  background: rgba(26,58,107,.08);
-  border-radius: 4px;
-  padding: 1px 6px;
-}
-.dep-pill.soon {
-  color: var(--blue);
-  font-weight: 600;
-  background: rgba(26,58,107,.14);
-}
-.dep-pill.now {
-  color: #fff;
-  background: var(--blue);
-  font-weight: 600;
-}
-.transit-setup {
-  font-size: 0.82rem;
-  color: var(--text-2);
-  line-height: 1.6;
-}
-.transit-setup a { color: var(--blue); text-decoration: none; }
-.transit-setup a:hover { text-decoration: underline; }
-.transit-ptv-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 8px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--blue);
-  text-decoration: none;
-  border: 1px solid rgba(26,58,107,.25);
-  border-radius: 6px;
-  padding: 5px 10px;
-}
-.transit-ptv-link:hover { background: var(--blue-bg); }
-.transit-updated {
-  font-size: 0.68rem;
-  color: var(--text-3);
-  margin-top: 10px;
-  text-align: right;
-}
 
 /* ── Weather card ── */
+.weather-inner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
 .weather-main {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-bottom: 10px;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
-.weather-icon { font-size: 2.4rem; line-height: 1; }
+.weather-icon { font-size: 2.6rem; line-height: 1; }
 .weather-temp {
-  font-size: 2.2rem;
+  font-size: 2.4rem;
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -243,22 +135,56 @@ header {
 .weather-feels {
   font-size: 0.75rem;
   color: var(--text-3);
-  margin-top: 2px;
+  margin-top: 3px;
 }
 .weather-desc {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: var(--text-2);
-  margin-bottom: 8px;
+  margin-top: 2px;
+}
+.weather-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  flex: 1;
 }
 .weather-row {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   font-size: 0.78rem;
-  color: var(--text-2);
-  padding: 6px 0;
-  border-top: 1px solid var(--border);
 }
-.weather-row span:first-child { color: var(--text-3); }
+.weather-row span:first-child {
+  font-size: 0.68rem;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+.weather-row span:last-child { color: var(--text); font-weight: 500; }
+
+/* ── Tomorrow forecast ── */
+.weather-tomorrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  flex-wrap: wrap;
+}
+.tmr-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+.tmr-icon { font-size: 1rem; }
+.tmr-desc { color: var(--text-2); flex: 1; }
+.tmr-range { font-weight: 500; color: var(--text); }
+.tmr-rain  { color: var(--text-3); }
 
 /* ── Places card ── */
 .places-card-header {
@@ -369,6 +295,28 @@ header {
   padding: 16px 0;
   text-align: center;
 }
+
+/* ── Keyword chips ── */
+#keyword-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.kw-chip {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 4px 11px;
+  font-size: 0.78rem;
+  font-family: inherit;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+  white-space: nowrap;
+}
+.kw-chip:hover { background: var(--green-bg); border-color: var(--green-mid); color: var(--green); }
+.kw-chip.active { background: var(--green); border-color: var(--green); color: #fff; }
 
 .places-summary {
   font-size: 0.82rem;

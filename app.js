@@ -1,7 +1,7 @@
 'use strict';
 
-const LAT = -37.7620;
-const LNG = 144.961;
+const LAT = -37.7607;
+const LNG = 144.9620;
 const TZ  = 'Australia/Melbourne';
 
 // ── Clock ─────────────────────────────────────────────────────────────────
@@ -14,121 +14,15 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 10_000);
 
-// ── Transit — static GTFS timetable ──────────────────────────────────────
-// timetable.json was generated from PTV open GTFS data (no API key required).
-// Scheduled times only — check ptv.vic.gov.au for real-time disruptions.
-
-let _timetable = null;
-
-async function getTimetable() {
-  if (_timetable) return _timetable;
-  const r = await fetch('timetable.json');
-  _timetable = await r.json();
-  return _timetable;
-}
-
-function dayType() {
-  const d = new Date().toLocaleDateString('en-AU', { timeZone: TZ, weekday: 'long' }).toLowerCase();
-  if (d === 'saturday') return 'saturday';
-  if (d === 'sunday')   return 'sunday';
-  return 'weekday';
-}
-
 function nowMelbMinutes() {
-  // Current time in Melbourne as minutes since midnight
   const s = new Date().toLocaleTimeString('en-AU', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false });
   const [h, m] = s.split(':').map(Number);
   return h * 60 + m;
 }
 
-function nextDepartures(sortedTimes, count = 4) {
-  const nowM = nowMelbMinutes();
-  const toM  = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-  const after = sortedTimes.filter(t => toM(t) > nowM);
-  if (after.length >= count) return after.slice(0, count);
-  return [...after, ...sortedTimes.slice(0, count - after.length)];
-}
-
-function minsUntil(timeStr) {
-  const nowM = nowMelbMinutes();
-  const [h, m] = timeStr.split(':').map(Number);
-  let dep = h * 60 + m;
-  if (dep <= nowM) dep += 24 * 60;
-  return dep - nowM;
-}
-
-function depPill(timeStr) {
-  const mins = minsUntil(timeStr);
-  const cls   = mins <= 1 ? 'now' : mins <= 5 ? 'soon' : '';
-  const label = mins <= 1 ? 'Now' : mins === 1 ? '1 min' : `${mins} min`;
-  return `<span class="dep-pill ${cls}">${label}</span>`;
-}
-
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-// Which stops to show and how to group them
-const TRANSIT_DISPLAY = [
-  {
-    heading: 'Upfield Line — Brunswick Station',
-    icon: '🚆',
-    stops: ['brunswick_city', 'brunswick_upfield'],
-  },
-  {
-    heading: 'Route 19 — Sydney Rd (Albert St)',
-    icon: '🚃',
-    stops: ['sydney_rd_south', 'sydney_rd_north'],
-  },
-  {
-    heading: 'Route 1 — Lygon St (Victoria St)',
-    icon: '🚃',
-    stops: ['lygon_st_south', 'lygon_st_north'],
-  },
-];
-
-async function loadTransit() {
-  const el = document.getElementById('transit-content');
-  try {
-    const data = await getTimetable();
-    const byId = Object.fromEntries(data.stops.map(s => [s.id, s]));
-    const dt   = dayType();
-    let html = '';
-
-    for (const group of TRANSIT_DISPLAY) {
-      html += `<div class="transit-group">
-        <div class="transit-group-title">${group.icon} ${escHtml(group.heading)}</div>`;
-
-      for (const stopId of group.stops) {
-        const stop = byId[stopId];
-        if (!stop) continue;
-        const times = stop.departures[dt] || stop.departures.weekday || [];
-        if (!times.length) continue;
-        const next  = nextDepartures(times);
-        const badge = stop.type === 'train' ? 'Upfield' : stop.route.replace('Route ', '');
-        html += `
-          <div class="transit-route">
-            <div class="route-badge">${escHtml(badge)}</div>
-            <div class="route-info">
-              <div class="route-name">${escHtml(stop.direction)}</div>
-              <div class="route-times">${next.map(depPill).join('')}</div>
-            </div>
-          </div>`;
-      }
-      html += '</div>';
-    }
-
-    html += `<div class="transit-updated">
-      Scheduled times · <a href="https://www.ptv.vic.gov.au" target="_blank" rel="noopener">Live updates on PTV ↗</a>
-    </div>`;
-    el.innerHTML = html;
-  } catch (err) {
-    el.innerHTML = `<div class="error-msg">Couldn't load timetable. <a href="https://www.ptv.vic.gov.au" target="_blank" rel="noopener">Check PTV ↗</a></div>`;
-  }
-}
-
-loadTransit();
-setInterval(loadTransit, 30_000);
 
 // ── Weather — Open-Meteo (no key required) ────────────────────────────────
 const WMO = {
@@ -148,23 +42,35 @@ async function loadWeather() {
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LNG}`
       + `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m`
-      + `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum`
-      + `&timezone=${TZ}&forecast_days=1`;
+      + `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code`
+      + `&timezone=${TZ}&forecast_days=2`;
     const d   = await (await fetch(url)).json();
     const c   = d.current, day = d.daily;
-    const [icon, desc] = wmo(c.weather_code);
+    const [icon, desc]       = wmo(c.weather_code);
+    const [tmrIcon, tmrDesc] = wmo(day.weather_code[1]);
     el.innerHTML = `
-      <div class="weather-main">
-        <div class="weather-icon">${icon}</div>
-        <div>
-          <div class="weather-temp">${Math.round(c.temperature_2m)}<span class="weather-unit">°C</span></div>
-          <div class="weather-feels">Feels ${Math.round(c.apparent_temperature)}°</div>
+      <div class="weather-inner">
+        <div class="weather-main">
+          <div class="weather-icon">${icon}</div>
+          <div>
+            <div class="weather-temp">${Math.round(c.temperature_2m)}<span class="weather-unit">°C</span></div>
+            <div class="weather-feels">Feels ${Math.round(c.apparent_temperature)}°</div>
+            <div class="weather-desc">${desc}</div>
+          </div>
+        </div>
+        <div class="weather-stats">
+          <div class="weather-row"><span>High / Low</span><span>${Math.round(day.temperature_2m_max[0])}° / ${Math.round(day.temperature_2m_min[0])}°</span></div>
+          <div class="weather-row"><span>Wind</span><span>${degToCompass(c.wind_direction_10m)} ${Math.round(c.wind_speed_10m)} km/h</span></div>
+          <div class="weather-row"><span>Rain today</span><span>${day.precipitation_sum[0]} mm</span></div>
         </div>
       </div>
-      <div class="weather-desc">${desc}</div>
-      <div class="weather-row"><span>High / Low</span><span>${Math.round(day.temperature_2m_max[0])}° / ${Math.round(day.temperature_2m_min[0])}°</span></div>
-      <div class="weather-row"><span>Wind</span><span>${degToCompass(c.wind_direction_10m)} ${Math.round(c.wind_speed_10m)} km/h</span></div>
-      <div class="weather-row"><span>Rain today</span><span>${day.precipitation_sum[0]} mm</span></div>`;
+      <div class="weather-tomorrow">
+        <span class="tmr-label">Tomorrow</span>
+        <span class="tmr-icon">${tmrIcon}</span>
+        <span class="tmr-desc">${tmrDesc}</span>
+        <span class="tmr-range">${Math.round(day.temperature_2m_max[1])}° / ${Math.round(day.temperature_2m_min[1])}°</span>
+        <span class="tmr-rain">${day.precipitation_sum[1]} mm rain</span>
+      </div>`;
   } catch {
     el.innerHTML = '<div class="loading">Weather unavailable</div>';
   }
@@ -289,6 +195,46 @@ function placeHref(p) {
   return `https://www.google.com/maps/search/${encodeURIComponent(p.name)}/@${p.lat},${p.lon},17z`;
 }
 
+// ── Keyword chips ─────────────────────────────────────────────────────────
+const KEYWORDS = [
+  { label: 'Cafe',        amenities: ['cafe'] },
+  { label: 'Bar & Pub',   amenities: ['bar', 'pub', 'wine_bar', 'biergarten'] },
+  { label: 'Restaurant',  amenities: ['restaurant', 'fast_food', 'food_court'] },
+  { label: 'Bakery',      amenities: ['bakery'] },
+  { label: 'Bottle Shop', amenities: ['alcohol', 'wine'] },
+  { label: 'Supermarket', amenities: ['supermarket', 'convenience'] },
+  { label: 'Pharmacy',    amenities: ['pharmacy', 'chemist'] },
+  { label: 'Gym / Yoga',  amenities: ['gym', 'fitness_centre', 'yoga', 'sports_centre'] },
+  { label: 'Op Shop',     amenities: ['second_hand', 'charity', 'antiques'] },
+  { label: 'Library',     amenities: ['library'] },
+  { label: 'Music',       amenities: ['music', 'musical_instrument'] },
+  { label: 'Books',       amenities: ['books'] },
+];
+
+let _activeKeyword = null;
+
+function buildKeywordChips() {
+  const wrap = document.getElementById('keyword-chips');
+  wrap.innerHTML = KEYWORDS.map((kw, i) =>
+    `<button class="kw-chip" data-idx="${i}">${escHtml(kw.label)}</button>`
+  ).join('');
+  wrap.addEventListener('click', e => {
+    const btn = e.target.closest('.kw-chip');
+    if (!btn) return;
+    const idx = Number(btn.dataset.idx);
+    const kw  = KEYWORDS[idx];
+    if (_activeKeyword === kw) {
+      _activeKeyword = null;
+      btn.classList.remove('active');
+    } else {
+      _activeKeyword = kw;
+      wrap.querySelectorAll('.kw-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    renderPlaces();
+  });
+}
+
 // Cached place data — fetched once, filtered client-side
 let _places = null;
 
@@ -301,6 +247,7 @@ function renderPlaces() {
 
   const filtered = _places.filter(p => {
     if (p.dist > maxDist) return false;
+    if (_activeKeyword && !_activeKeyword.amenities.includes(p.amenity)) return false;
     if (!term) return true;
     return p.name.toLowerCase().includes(term)
         || p.amenity.toLowerCase().includes(term)
@@ -319,7 +266,9 @@ function renderPlaces() {
   }
 
   const totalOpen = filtered.filter(p => p.status.open === true).length;
-  let html = `<div class="places-summary"><strong>${totalOpen}</strong> open within ${maxDist >= 1000 ? (maxDist/1000).toFixed(1)+'km' : maxDist+'m'}${term ? ` · "${escHtml(term)}"` : ''}</div>`;
+  const distStr   = maxDist >= 1000 ? (maxDist/1000).toFixed(1)+'km' : maxDist+'m';
+  const filterStr = [_activeKeyword ? escHtml(_activeKeyword.label) : '', term ? `"${escHtml(term)}"` : ''].filter(Boolean).join(' · ');
+  let html = `<div class="places-summary"><strong>${totalOpen}</strong> open within ${distStr}${filterStr ? ` · ${filterStr}` : ''}</div>`;
 
   for (const group of Object.keys(AMENITY_GROUPS)) {
     const list = byGroup[group];
@@ -356,10 +305,10 @@ async function loadPlaces() {
   const amenityList = [...new Set([...Object.values(AMENITY_GROUPS).flat(), ...Object.keys(SHOP_TO_GROUP)])].join('|');
   const shopList    = Object.keys(SHOP_TO_GROUP).join('|');
   const query = `[out:json][timeout:30];
-(node["amenity"~"^(${amenityList})$"](around:900,${LAT},${LNG});
- way["amenity"~"^(${amenityList})$"](around:900,${LAT},${LNG});
- node["shop"~"^(${shopList})$"](around:900,${LAT},${LNG});
- way["shop"~"^(${shopList})$"](around:900,${LAT},${LNG}););
+(node["amenity"~"^(${amenityList})$"](around:1000,${LAT},${LNG});
+ way["amenity"~"^(${amenityList})$"](around:1000,${LAT},${LNG});
+ node["shop"~"^(${shopList})$"](around:1000,${LAT},${LNG});
+ way["shop"~"^(${shopList})$"](around:1000,${LAT},${LNG}););
 out center tags;`;
 
   try {
@@ -403,6 +352,9 @@ searchClear.addEventListener('click', () => {
   searchInput.value = '';
   searchClear.classList.add('hidden');
   searchInput.focus();
+  // also clear keyword chip if active
+  _activeKeyword = null;
+  document.querySelectorAll('.kw-chip').forEach(b => b.classList.remove('active'));
   renderPlaces();
 });
 distSlider.addEventListener('input', () => {
@@ -411,5 +363,6 @@ distSlider.addEventListener('input', () => {
   renderPlaces();
 });
 
+buildKeywordChips();
 loadPlaces();
 setInterval(loadPlaces, 5*60_000);
