@@ -228,12 +228,13 @@ function loadCommunityFeeds() {
     + staticLink('https://faults.yvw.com.au/', 'Yarra Valley Water', 'Outages & works')
     + `</div>`;
 
-  el.innerHTML =
-    section('🗓', 'Local Events', eventsInner) +
-    section('🏛', 'Council', newsInner) +
-    section('🏘', 'Council Services', servicesInner) +
-    section('💧', 'Utilities', utilitiesInner) +
-    section('🚧', 'Traffic &amp; Works', staticLink(VICROADS_URL, 'VicRoads Live Traffic', 'Disruptions &amp; roadworks'));
+  el.innerHTML = `<div class="community-sections">`
+    + section('🗓', 'Local Events', eventsInner)
+    + section('🏛', 'Council', newsInner)
+    + section('🏘', 'Council Services', servicesInner)
+    + section('💧', 'Utilities', utilitiesInner)
+    + section('🚧', 'Traffic &amp; Works', staticLink(VICROADS_URL, 'VicRoads Live Traffic', 'Disruptions &amp; roadworks'))
+    + `</div>`;
 }
 
 // ── Open Now — Overpass API (no key required) ─────────────────────────────

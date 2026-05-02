@@ -32,7 +32,7 @@ header {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 20px;
+  padding: 12px 20px;
   background: var(--bg);
   position: sticky;
   top: 0;
@@ -55,31 +55,32 @@ header {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.01em;
 }
-.icon-btn {
-  background: none;
-  border: none;
-  color: var(--text-3);
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  border-radius: 6px;
-  transition: color .15s, background .15s;
-}
-.icon-btn:hover { color: var(--text); background: var(--border); }
 
-/* ── Dashboard grid ── */
+/* ── Dashboard — 3-col grid; weather takes 2/3, air quality 1/3 ── */
 .dashboard {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: var(--gap);
-  padding: var(--gap) 20px 32px;
-  max-width: 960px;
+  padding: var(--gap) 20px 40px;
+  max-width: 980px;
   margin: 0 auto;
 }
 
-@media (max-width: 640px) {
-  .dashboard { padding: 12px; }
+/* weather spans cols 1–2; air quality auto-places in col 3 */
+.card-weather   { grid-column: 1 / 3; }
+/* community and places span all 3 cols */
+.card-community { grid-column: 1 / -1; }
+.card-places    { grid-column: 1 / -1; }
+
+@media (max-width: 760px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+    padding: 10px 12px 32px;
+    gap: 10px;
+  }
+  .card-weather,
+  .card-community,
+  .card-places { grid-column: auto; }
 }
 
 /* ── Card ── */
@@ -102,19 +103,13 @@ header {
   margin-bottom: 14px;
 }
 .loading { color: var(--text-3); font-size: 0.85rem; }
-.error-msg {
-  font-size: 0.82rem;
-  color: var(--text-2);
-  line-height: 1.5;
-}
-.error-msg a { color: var(--blue); }
-
+.error-msg { font-size: 0.82rem; color: var(--text-2); line-height: 1.5; }
 
 /* ── Weather card ── */
 .weather-inner {
   display: flex;
-  align-items: center;
-  gap: 24px;
+  align-items: flex-start;
+  gap: 20px;
   flex-wrap: wrap;
 }
 .weather-main {
@@ -123,38 +118,29 @@ header {
   gap: 12px;
   flex-shrink: 0;
 }
-.weather-icon { font-size: 2.6rem; line-height: 1; }
+.weather-icon { font-size: 2.8rem; line-height: 1; }
 .weather-temp {
-  font-size: 2.4rem;
-  font-weight: 600;
-  letter-spacing: -0.03em;
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
   line-height: 1;
   color: var(--amber);
 }
-.weather-unit { font-size: 1rem; font-weight: 400; color: var(--text-3); }
-.weather-feels {
-  font-size: 0.75rem;
-  color: var(--text-3);
-  margin-top: 3px;
-}
-.weather-desc {
-  font-size: 0.85rem;
-  color: var(--text-2);
-  margin-top: 2px;
-}
+.weather-unit { font-size: 1.1rem; font-weight: 400; color: var(--text-3); }
+.weather-feels { font-size: 0.75rem; color: var(--text-3); margin-top: 4px; }
+.weather-desc  { font-size: 0.88rem; font-weight: 500; color: var(--text-2); margin-top: 2px; }
+.weather-realfeel { font-size: 0.78rem; color: var(--text-3); margin-top: 4px; font-style: italic; }
+
 .weather-stats {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px 16px;
   flex: 1;
+  min-width: 180px;
 }
-.weather-row {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.78rem;
-}
+.weather-row { display: flex; flex-direction: column; font-size: 0.78rem; }
 .weather-row span:first-child {
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   color: var(--text-3);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -163,36 +149,153 @@ header {
 .weather-row span:last-child { color: var(--text); font-weight: 500; }
 .sun-status { font-variant-numeric: tabular-nums; }
 
-/* ── Tomorrow forecast ── */
+/* ── UV ── */
+.uv-low     { color: #16a34a; }
+.uv-mod     { color: #ca8a04; }
+.uv-high    { color: #ea580c; }
+.uv-vhigh   { color: var(--red); }
+.uv-extreme { color: #7e22ce; }
+
+/* ── Tomorrow strip ── */
 .weather-tomorrow {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 12px;
-  padding-top: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--border);
   font-size: 0.8rem;
   flex-wrap: wrap;
 }
 .tmr-label {
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-3);
   flex-shrink: 0;
 }
-.tmr-icon { font-size: 1rem; }
-.tmr-desc { color: var(--text-2); flex: 1; }
+.tmr-icon  { font-size: 1rem; }
+.tmr-desc  { color: var(--text-2); flex: 1; }
 .tmr-range { font-weight: 500; color: var(--text); }
 .tmr-rain  { color: var(--text-3); }
+
+/* ── Air quality card ── */
+.aq-grid {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.aqi-badge {
+  font-size: 1.8rem;
+  font-weight: 700;
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  flex-shrink: 0;
+  color: #fff;
+}
+.aqi-good    { background: #16a34a; }
+.aqi-fair    { background: #ca8a04; }
+.aqi-mod     { background: #ea580c; }
+.aqi-poor    { background: var(--red); }
+.aqi-vpoor   { background: #7f1d1d; }
+.aqi-extreme { background: #7e22ce; }
+.aq-label    { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+.aq-sublabel { font-size: 0.72rem; color: var(--text-3); margin-top: 2px; }
+.aq-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.aq-row { display: flex; flex-direction: column; font-size: 0.78rem; }
+.aq-row span:first-child {
+  font-size: 0.66rem;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+.aq-row span:last-child { color: var(--text); font-weight: 500; }
+.pollen-high { color: #ea580c; }
+
+/* ── Community card ── */
+.community-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 20px 24px;
+}
+@media (max-width: 480px) {
+  .community-sections { grid-template-columns: 1fr 1fr; gap: 16px 12px; }
+}
+.community-section-title {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.community-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.community-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  min-height: 40px;
+  border-radius: 7px;
+  background: var(--bg);
+  text-decoration: none;
+  color: inherit;
+  transition: background .12s, transform .1s;
+}
+.community-link:hover {
+  background: var(--green-bg);
+  transform: translateX(2px);
+}
+.community-link-info { flex: 1; min-width: 0; }
+.community-link-label {
+  font-size: 0.81rem;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.community-link-sublabel {
+  font-size: 0.7rem;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.community-link-arrow {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  opacity: 0;
+  transition: opacity .12s;
+  flex-shrink: 0;
+}
+.community-link:hover .community-link-arrow { opacity: 1; }
 
 /* ── Places card ── */
 .places-card-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 14px;
 }
@@ -201,10 +304,17 @@ header {
 .places-filters {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
   flex: 1;
   justify-content: flex-end;
+}
+
+@media (max-width: 520px) {
+  .places-card-header { flex-direction: column; }
+  .places-filters { justify-content: flex-start; width: 100%; }
+  .filter-search-wrap { flex: 1; }
+  #places-search, #places-search:focus { width: 100%; }
 }
 
 .filter-search-wrap {
@@ -219,10 +329,10 @@ header {
   pointer-events: none;
 }
 #places-search {
-  padding: 5px 26px 5px 26px;
+  padding: 6px 28px 6px 28px;
   border: 1px solid var(--border);
   border-radius: 20px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-family: inherit;
   background: var(--bg);
   color: var(--text);
@@ -230,10 +340,8 @@ header {
   outline: none;
   transition: border-color .15s, width .2s;
 }
-#places-search:focus {
-  border-color: var(--green-mid, #4a7c4a);
-  width: 200px;
-}
+#places-search:focus { border-color: var(--green-mid); width: 200px; }
+
 .search-clear {
   position: absolute;
   right: 6px;
@@ -242,7 +350,7 @@ header {
   font-size: 0.7rem;
   color: var(--text-3);
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 4px 6px;
   line-height: 1;
   border-radius: 50%;
 }
@@ -275,7 +383,7 @@ header {
 }
 #places-dist-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 14px; height: 14px;
+  width: 16px; height: 16px;
   border-radius: 50%;
   background: var(--green);
   cursor: pointer;
@@ -283,7 +391,7 @@ header {
 }
 #places-dist-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
 #places-dist-slider::-moz-range-thumb {
-  width: 14px; height: 14px;
+  width: 16px; height: 16px;
   border-radius: 50%;
   background: var(--green);
   cursor: pointer;
@@ -293,7 +401,7 @@ header {
 .places-empty {
   font-size: 0.85rem;
   color: var(--text-3);
-  padding: 16px 0;
+  padding: 20px 0;
   text-align: center;
 }
 
@@ -308,7 +416,8 @@ header {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 4px 11px;
+  padding: 5px 13px;
+  min-height: 32px;
   font-size: 0.78rem;
   font-family: inherit;
   color: var(--text-2);
@@ -316,48 +425,46 @@ header {
   transition: background .12s, border-color .12s, color .12s;
   white-space: nowrap;
 }
-.kw-chip:hover { background: var(--green-bg); border-color: var(--green-mid); color: var(--green); }
+.kw-chip:hover  { background: var(--green-bg); border-color: var(--green-mid); color: var(--green); }
 .kw-chip.active { background: var(--green); border-color: var(--green); color: #fff; }
 
-.places-summary {
-  font-size: 0.82rem;
-  color: var(--text-2);
-  margin-bottom: 14px;
-}
+.places-summary { font-size: 0.82rem; color: var(--text-2); margin-bottom: 14px; }
 .places-summary strong { color: var(--green); }
-.places-group { margin-bottom: 16px; }
+
+.places-group { margin-bottom: 18px; }
 .places-group:last-child { margin-bottom: 0; }
 .places-group-title {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-3);
-  margin-bottom: 6px;
+  margin-bottom: 7px;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--border);
 }
 .places-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 5px;
 }
+@media (max-width: 480px) {
+  .places-list { grid-template-columns: 1fr; }
+}
+
 .place-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
-  border-radius: 7px;
+  padding: 8px 10px;
+  min-height: 44px;
+  border-radius: 8px;
   background: var(--green-bg);
   text-decoration: none;
   color: inherit;
   transition: background .12s, transform .1s;
-  cursor: pointer;
 }
-.place-item:hover {
-  background: #d4edda;
-  transform: translateX(2px);
-}
+.place-item:hover { background: #d4edda; transform: translateX(2px); }
 .place-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
@@ -389,194 +496,13 @@ header {
   gap: 2px;
   flex-shrink: 0;
 }
-.place-dist {
-  font-size: 0.7rem;
-  color: var(--text-3);
-}
-.place-link-icon {
-  font-size: 0.65rem;
-  color: var(--text-3);
-  opacity: 0;
-  transition: opacity .12s;
-}
+.place-dist { font-size: 0.7rem; color: var(--text-3); }
+.place-link-icon { font-size: 0.65rem; color: var(--text-3); opacity: 0; transition: opacity .12s; }
 .place-item:hover .place-link-icon { opacity: 1; }
 .places-note {
-  margin-top: 12px;
+  margin-top: 14px;
   font-size: 0.72rem;
   color: var(--text-3);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 .places-note a { color: var(--text-3); }
-
-/* ── Real-feel ── */
-.weather-realfeel {
-  font-size: 0.8rem;
-  color: var(--text-2);
-  margin-top: 4px;
-  font-style: italic;
-}
-
-/* ── UV index ── */
-.uv-low     { color: #16a34a; }
-.uv-mod     { color: #ca8a04; }
-.uv-high    { color: #ea580c; }
-.uv-vhigh   { color: var(--red); }
-.uv-extreme { color: #7e22ce; }
-
-/* ── Air quality card ── */
-.aq-grid {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 12px;
-}
-.aqi-badge {
-  font-size: 2rem;
-  font-weight: 700;
-  line-height: 1;
-  width: 58px;
-  height: 58px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  flex-shrink: 0;
-  color: #fff;
-}
-.aqi-good   { background: #16a34a; }
-.aqi-fair   { background: #ca8a04; }
-.aqi-mod    { background: #ea580c; }
-.aqi-poor   { background: var(--red); }
-.aqi-vpoor  { background: #7f1d1d; }
-.aqi-extreme{ background: #7e22ce; }
-.aq-label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text);
-}
-.aq-sublabel {
-  font-size: 0.72rem;
-  color: var(--text-3);
-  margin-top: 2px;
-}
-.aq-stats {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
-}
-.aq-row {
-  display: flex;
-  flex-direction: column;
-  font-size: 0.78rem;
-}
-.aq-row span:first-child {
-  font-size: 0.68rem;
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 2px;
-}
-.aq-row span:last-child { color: var(--text); font-weight: 500; }
-.pollen-high { color: #ea580c; }
-
-/* ── Community card ── */
-.community-section { margin-bottom: 16px; }
-.community-section:last-child { margin-bottom: 0; }
-.community-section-title {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
-}
-.community-links {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 5px;
-}
-.community-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: 7px;
-  background: var(--bg);
-  text-decoration: none;
-  color: inherit;
-  transition: background .12s, transform .1s;
-  cursor: pointer;
-}
-.community-link:hover {
-  background: var(--green-bg);
-  transform: translateX(2px);
-}
-.community-link-info { flex: 1; min-width: 0; }
-.community-link-label {
-  font-size: 0.82rem;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--text);
-}
-.community-link-sublabel {
-  font-size: 0.72rem;
-  color: var(--text-3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.community-link-arrow {
-  font-size: 0.75rem;
-  color: var(--text-3);
-  opacity: 0;
-  transition: opacity .12s;
-  flex-shrink: 0;
-}
-.community-link:hover .community-link-arrow { opacity: 1; }
-.community-link--more { margin-top: 6px; }
-.community-links { display: flex; flex-direction: column; gap: 5px; }
-
-/* ── Community feed items (live Merri-bek results) ── */
-.community-feed { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
-.feed-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: 7px;
-  text-decoration: none;
-  color: inherit;
-  transition: background .12s;
-}
-.feed-item:hover { background: var(--green-bg); }
-.feed-item-content { flex: 1; min-width: 0; }
-.feed-item-title {
-  font-size: 0.82rem;
-  font-weight: 500;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.feed-item-meta {
-  font-size: 0.72rem;
-  color: var(--text-3);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.feed-item-arrow {
-  font-size: 0.75rem;
-  color: var(--text-3);
-  opacity: 0;
-  transition: opacity .12s;
-  flex-shrink: 0;
-}
-.feed-item:hover .feed-item-arrow { opacity: 1; }
-
