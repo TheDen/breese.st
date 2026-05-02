@@ -12,6 +12,7 @@
   --blue: #1a3a6b;
   --blue-bg: #eef2fa;
   --green: #1a5c35;
+  --green-mid: #2e7d4f;
   --green-bg: #eaf4ee;
   --amber: #92400e;
   --amber-bg: #fff8ee;
@@ -260,6 +261,115 @@ header {
 .weather-row span:first-child { color: var(--text-3); }
 
 /* ── Places card ── */
+.places-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.places-card-header .card-label { margin-bottom: 0; }
+
+.places-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.filter-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.filter-search-icon {
+  position: absolute;
+  left: 8px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+#places-search {
+  padding: 5px 26px 5px 26px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  width: 160px;
+  outline: none;
+  transition: border-color .15s, width .2s;
+}
+#places-search:focus {
+  border-color: var(--green-mid, #4a7c4a);
+  width: 200px;
+}
+.search-clear {
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  font-size: 0.7rem;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: 50%;
+}
+.search-clear:hover { color: var(--text); background: var(--border); }
+.search-clear.hidden { display: none; }
+
+.filter-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+.slider-label {
+  font-size: 0.78rem;
+  color: var(--text-2);
+  min-width: 80px;
+  text-align: right;
+}
+.slider-label strong { color: var(--green); }
+
+#places-dist-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  outline: none;
+  cursor: pointer;
+}
+#places-dist-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--green);
+  cursor: pointer;
+  transition: transform .1s;
+}
+#places-dist-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+#places-dist-slider::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--green);
+  cursor: pointer;
+  border: none;
+}
+
+.places-empty {
+  font-size: 0.85rem;
+  color: var(--text-3);
+  padding: 16px 0;
+  text-align: center;
+}
+
 .places-summary {
   font-size: 0.82rem;
   color: var(--text-2);
