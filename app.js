@@ -262,13 +262,15 @@ async function loadCommunityFeeds() {
     ? feedItems(eventItems) + staticLink('https://www.eventbrite.com.au/d/australia--brunswick/events/', 'Eventbrite · Brunswick', 'More events nearby')
     : staticLink(BASE_MERRIBEK + '/exploring-merri-bek/events/whats-on/', "Merri-bek What's On", 'merri-bek.vic.gov.au');
 
-  const newsInner = newsItems.length
-    ? feedItems(newsItems)
-    : staticLink(BASE_MERRIBEK + '/my-council/news-and-publications/news/', 'Merri-bek Council News', 'merri-bek.vic.gov.au');
+  const newsInner = (newsItems.length ? feedItems(newsItems) : '')
+    + `<div class="community-links">`
+    + staticLink(BASE_MERRIBEK + '/my-council/news-and-publications/news/', 'Council News', 'merri-bek.vic.gov.au')
+    + staticLink('https://conversations.merri-bek.vic.gov.au/', 'Open Projects', 'Have your say')
+    + `</div>`;
 
   el.innerHTML =
     section('🗓', 'Local Events', eventsInner) +
-    section('📰', 'Council News', newsInner) +
+    section('🏛', 'Council', newsInner) +
     section('🚧', 'Traffic &amp; Works', staticLink(VICROADS_URL, 'VicRoads Live Traffic', 'Disruptions &amp; roadworks'));
 }
 
