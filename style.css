@@ -539,4 +539,43 @@ header {
   flex-shrink: 0;
 }
 .community-link:hover .community-link-arrow { opacity: 1; }
+.community-link--more { margin-top: 6px; }
+
+/* ── Community feed items (live Merri-bek results) ── */
+.community-feed { display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px; }
+.feed-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 7px;
+  text-decoration: none;
+  color: inherit;
+  transition: background .12s;
+}
+.feed-item:hover { background: var(--green-bg); }
+.feed-item-content { flex: 1; min-width: 0; }
+.feed-item-title {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.feed-item-meta {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.feed-item-arrow {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  opacity: 0;
+  transition: opacity .12s;
+  flex-shrink: 0;
+}
+.feed-item:hover .feed-item-arrow { opacity: 1; }
 

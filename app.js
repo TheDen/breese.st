@@ -189,39 +189,87 @@ async function loadAirQuality() {
 }
 
 // ── Community card ────────────────────────────────────────────────────────
-function buildCommunityCard() {
+const BASE_MERRIBEK = 'https://www.merri-bek.vic.gov.au';
+const VICROADS_URL  = 'https://traffic.transport.vic.gov.au/places?id=eyJkYXRhIjp7ImxvY2F0aW9uIjpbMTQ0Ljk2MjEzLC0zNy43NjcwNDhdLCJuYW1lIjoiQnJ1bnN3aWNrLCBWaWN0b3JpYSwgQXVzdHJhbGlhIiwibG9jYXRpb25UeXBlIjoibG9jYWxpdHkiLCJsb2NhdGlvbklkIjoiZFhKdU9tMWllSEJzWXpwRU0zTnhSR2MifSwiaGFzaCI6IjFkMjk0MGZkNjJkMzc3ZmMxNTM5YjMxOTM4ZTcxNTE5NzZmNDNkNzVhNmE1YWIyN2I2OWFmMzg2ODcxYWE5NzgifQ';
+
+async function loadCommunityFeeds() {
   const el = document.getElementById('community-content');
+  el.innerHTML = '<div class="loading">Loading…</div>';
 
-  const events = [
-    { label: "Merri-bek What's On",    sublabel: 'merri-bek.vic.gov.au',      href: 'https://www.merri-bek.vic.gov.au/exploring-merri-bek/events/whats-on/' },
-    { label: 'Eventbrite · Brunswick', sublabel: 'Upcoming events nearby',     href: 'https://www.eventbrite.com.au/d/australia--brunswick/events/' },
-  ];
-
-  const works = [
-    { label: 'VicRoads Live Traffic',  sublabel: 'Disruptions & roadworks',   href: 'https://traffic.transport.vic.gov.au/places?id=eyJkYXRhIjp7ImxvY2F0aW9uIjpbMTQ0Ljk2MjEzLC0zNy43NjcwNDhdLCJuYW1lIjoiQnJ1bnN3aWNrLCBWaWN0b3JpYSwgQXVzdHJhbGlhIiwibG9jYXRpb25UeXBlIjoibG9jYWxpdHkiLCJsb2NhdGlvbklkIjoiZFhKdU9tMWllSEJzWXpwRU0zTnhSR2MifSwiaGFzaCI6IjFkMjk0MGZkNjJkMzc3ZmMxNTM5YjMxOTM4ZTcxNTE5NzZmNDNkNzVhNmE1YWIyN2I2OWFmMzg2ODcxYWE5NzgifQ' },
-    { label: 'Merri-bek Council News', sublabel: 'Notices & announcements',   href: 'https://www.merri-bek.vic.gov.au/my-council/news-and-publications/news/' },
-  ];
-
-  function renderLinks(items) {
-    return items.map(item => `
-      <a class="community-link" href="${escHtml(item.href)}" target="_blank" rel="noopener noreferrer">
-        <div class="community-link-info">
-          <div class="community-link-label">${escHtml(item.label)}</div>
-          <div class="community-link-sublabel">${escHtml(item.sublabel)}</div>
-        </div>
-        <div class="community-link-arrow">↗</div>
-      </a>`).join('');
+  async function proxyFetch(path) {
+    const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(BASE_MERRIBEK + path)}`);
+    const { contents } = await r.json();
+    return new DOMParser().parseFromString(contents, 'text/html');
   }
 
-  el.innerHTML = `
-    <div class="community-section">
-      <div class="community-section-title">🗓 Local Events</div>
-      <div class="community-links">${renderLinks(events)}</div>
-    </div>
-    <div class="community-section">
-      <div class="community-section-title">🚧 Works &amp; Notices</div>
-      <div class="community-links">${renderLinks(works)}</div>
-    </div>`;
+  function feedItems(items) {
+    return `<div class="community-feed">${items.map(i => `
+      <a class="feed-item" href="${escHtml(i.href)}" target="_blank" rel="noopener noreferrer">
+        <div class="feed-item-content">
+          <div class="feed-item-title">${escHtml(i.title)}</div>
+          ${i.meta ? `<div class="feed-item-meta">${escHtml(i.meta)}</div>` : ''}
+        </div>
+        <div class="feed-item-arrow">↗</div>
+      </a>`).join('')}</div>`;
+  }
+
+  function staticLink(href, label, sublabel) {
+    return `<a class="community-link" href="${escHtml(href)}" target="_blank" rel="noopener noreferrer">
+      <div class="community-link-info">
+        <div class="community-link-label">${escHtml(label)}</div>
+        ${sublabel ? `<div class="community-link-sublabel">${escHtml(sublabel)}</div>` : ''}
+      </div>
+      <div class="community-link-arrow">↗</div>
+    </a>`;
+  }
+
+  function section(icon, label, inner) {
+    return `<div class="community-section"><div class="community-section-title">${icon} ${label}</div>${inner}</div>`;
+  }
+
+  const [evResult, newsResult] = await Promise.allSettled([
+    proxyFetch('/exploring-merri-bek/events/whats-on/'),
+    proxyFetch('/my-council/news-and-publications/news/'),
+  ]);
+
+  let eventItems = [];
+  if (evResult.status === 'fulfilled') {
+    eventItems = [...evResult.value.querySelectorAll('a.card')]
+      .filter(a => a.getAttribute('href')?.includes('/events/'))
+      .slice(0, 5)
+      .map(a => ({
+        title: a.querySelector('h4')?.textContent.trim() ?? '',
+        meta:  a.querySelector('.card__meta')?.textContent.trim().replace(/\s+/g, ' ') ?? '',
+        href:  BASE_MERRIBEK + a.getAttribute('href'),
+      }))
+      .filter(i => i.title);
+  }
+
+  let newsItems = [];
+  if (newsResult.status === 'fulfilled') {
+    newsItems = [...newsResult.value.querySelectorAll('a')]
+      .filter(a => a.getAttribute('href')?.includes('/news/') && a.querySelector('h4'))
+      .slice(0, 5)
+      .map(a => ({
+        title: a.querySelector('h4')?.textContent.trim() ?? '',
+        meta:  a.querySelector('p')?.textContent.trim() ?? '',
+        href:  BASE_MERRIBEK + a.getAttribute('href'),
+      }))
+      .filter(i => i.title);
+  }
+
+  const eventsInner = eventItems.length
+    ? feedItems(eventItems) + staticLink('https://www.eventbrite.com.au/d/australia--brunswick/events/', 'Eventbrite · Brunswick', 'More events nearby')
+    : staticLink(BASE_MERRIBEK + '/exploring-merri-bek/events/whats-on/', "Merri-bek What's On", 'merri-bek.vic.gov.au');
+
+  const newsInner = newsItems.length
+    ? feedItems(newsItems)
+    : staticLink(BASE_MERRIBEK + '/my-council/news-and-publications/news/', 'Merri-bek Council News', 'merri-bek.vic.gov.au');
+
+  el.innerHTML =
+    section('🗓', 'Local Events', eventsInner) +
+    section('📰', 'Council News', newsInner) +
+    section('🚧', 'Traffic &amp; Works', staticLink(VICROADS_URL, 'VicRoads Live Traffic', 'Disruptions &amp; roadworks'));
 }
 
 // ── Open Now — Overpass API (no key required) ─────────────────────────────
@@ -516,4 +564,4 @@ setInterval(loadPlaces, 5*60_000);
 loadAirQuality();
 setInterval(loadAirQuality, 30 * 60_000);
 
-buildCommunityCard();
+loadCommunityFeeds();
