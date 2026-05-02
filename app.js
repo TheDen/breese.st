@@ -192,26 +192,8 @@ async function loadAirQuality() {
 const BASE_MERRIBEK = 'https://www.merri-bek.vic.gov.au';
 const VICROADS_URL  = 'https://traffic.transport.vic.gov.au/places?id=eyJkYXRhIjp7ImxvY2F0aW9uIjpbMTQ0Ljk2MjEzLC0zNy43NjcwNDhdLCJuYW1lIjoiQnJ1bnN3aWNrLCBWaWN0b3JpYSwgQXVzdHJhbGlhIiwibG9jYXRpb25UeXBlIjoibG9jYWxpdHkiLCJsb2NhdGlvbklkIjoiZFhKdU9tMWllSEJzWXpwRU0zTnhSR2MifSwiaGFzaCI6IjFkMjk0MGZkNjJkMzc3ZmMxNTM5YjMxOTM4ZTcxNTE5NzZmNDNkNzVhNmE1YWIyN2I2OWFmMzg2ODcxYWE5NzgifQ';
 
-async function loadCommunityFeeds() {
+function loadCommunityFeeds() {
   const el = document.getElementById('community-content');
-  el.innerHTML = '<div class="loading">Loading…</div>';
-
-  async function proxyFetch(path) {
-    const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(BASE_MERRIBEK + path)}`);
-    const { contents } = await r.json();
-    return new DOMParser().parseFromString(contents, 'text/html');
-  }
-
-  function feedItems(items) {
-    return `<div class="community-feed">${items.map(i => `
-      <a class="feed-item" href="${escHtml(i.href)}" target="_blank" rel="noopener noreferrer">
-        <div class="feed-item-content">
-          <div class="feed-item-title">${escHtml(i.title)}</div>
-          ${i.meta ? `<div class="feed-item-meta">${escHtml(i.meta)}</div>` : ''}
-        </div>
-        <div class="feed-item-arrow">↗</div>
-      </a>`).join('')}</div>`;
-  }
 
   function staticLink(href, label, sublabel) {
     return `<a class="community-link" href="${escHtml(href)}" target="_blank" rel="noopener noreferrer">
@@ -227,44 +209,12 @@ async function loadCommunityFeeds() {
     return `<div class="community-section"><div class="community-section-title">${icon} ${label}</div>${inner}</div>`;
   }
 
-  const [evResult, newsResult] = await Promise.allSettled([
-    proxyFetch('/exploring-merri-bek/events/whats-on/'),
-    proxyFetch('/my-council/news-and-publications/news/'),
-  ]);
-
-  let eventItems = [];
-  if (evResult.status === 'fulfilled') {
-    eventItems = [...evResult.value.querySelectorAll('a.card')]
-      .filter(a => a.getAttribute('href')?.includes('/events/'))
-      .slice(0, 5)
-      .map(a => ({
-        title: a.querySelector('h4')?.textContent.trim() ?? '',
-        meta:  a.querySelector('.card__meta')?.textContent.trim().replace(/\s+/g, ' ') ?? '',
-        href:  BASE_MERRIBEK + a.getAttribute('href'),
-      }))
-      .filter(i => i.title);
-  }
-
-  let newsItems = [];
-  if (newsResult.status === 'fulfilled') {
-    newsItems = [...newsResult.value.querySelectorAll('a')]
-      .filter(a => a.getAttribute('href')?.includes('/news/') && a.querySelector('h4'))
-      .slice(0, 5)
-      .map(a => ({
-        title: a.querySelector('h4')?.textContent.trim() ?? '',
-        meta:  a.querySelector('p')?.textContent.trim() ?? '',
-        href:  BASE_MERRIBEK + a.getAttribute('href'),
-      }))
-      .filter(i => i.title);
-  }
-
-  const eventsInner = (eventItems.length ? feedItems(eventItems) : '')
-    + `<div class="community-links">`
+  const eventsInner = `<div class="community-links">`
+    + staticLink(BASE_MERRIBEK + '/exploring-merri-bek/events/whats-on/', "Merri-bek What's On", 'merri-bek.vic.gov.au')
     + staticLink('https://www.eventbrite.com.au/d/australia--brunswick/events/', 'Eventbrite · Brunswick', 'Upcoming events nearby')
     + `</div>`;
 
-  const newsInner = (newsItems.length ? feedItems(newsItems) : '')
-    + `<div class="community-links">`
+  const newsInner = `<div class="community-links">`
     + staticLink(BASE_MERRIBEK + '/my-council/news-and-publications/news/', 'Council News', 'merri-bek.vic.gov.au')
     + staticLink('https://conversations.merri-bek.vic.gov.au/', 'Open Projects', 'Have your say')
     + `</div>`;
