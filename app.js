@@ -42,12 +42,26 @@ async function loadWeather() {
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LNG}`
       + `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m`
-      + `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code`
+      + `&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weather_code,sunrise,sunset`
       + `&timezone=${TZ}&forecast_days=2`;
     const d   = await (await fetch(url)).json();
     const c   = d.current, day = d.daily;
     const [icon, desc]       = wmo(c.weather_code);
     const [tmrIcon, tmrDesc] = wmo(day.weather_code[1]);
+
+    // Day/night from sunrise/sunset ISO strings (e.g. "2025-05-02T06:45")
+    // Open-Meteo returns naive local-time ISO strings (no offset) — extract HH:MM directly
+    const isoMins = iso => { const t = iso.slice(11,16); const [h,m] = t.split(':').map(Number); return h*60+m; };
+    const fmtIso  = iso => { const [h,m] = iso.slice(11,16).split(':').map(Number); const d = new Date(2000,0,1,h,m); return d.toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit' }); };
+    const nowM    = nowMelbMinutes();
+    const riseM   = isoMins(day.sunrise[0]);
+    const setM    = isoMins(day.sunset[0]);
+    const isDark  = nowM < riseM || nowM >= setM;
+    const sunLabel = isDark
+      ? (nowM < riseM ? `Sunrise ${fmtIso(day.sunrise[0])}` : `Sunrise ${fmtIso(day.sunrise[1] ?? day.sunrise[0])}`)
+      : `Sunset ${fmtIso(day.sunset[0])}`;
+    const sunIcon  = isDark ? '🌙' : '☀️';
+
     el.innerHTML = `
       <div class="weather-inner">
         <div class="weather-main">
@@ -62,6 +76,7 @@ async function loadWeather() {
           <div class="weather-row"><span>High / Low</span><span>${Math.round(day.temperature_2m_max[0])}° / ${Math.round(day.temperature_2m_min[0])}°</span></div>
           <div class="weather-row"><span>Wind</span><span>${degToCompass(c.wind_direction_10m)} ${Math.round(c.wind_speed_10m)} km/h</span></div>
           <div class="weather-row"><span>Rain today</span><span>${day.precipitation_sum[0]} mm</span></div>
+          <div class="weather-row"><span>${isDark ? 'After dark' : 'Daylight'}</span><span class="sun-status">${sunIcon} ${sunLabel}</span></div>
         </div>
       </div>
       <div class="weather-tomorrow">

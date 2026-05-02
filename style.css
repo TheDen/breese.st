@@ -161,6 +161,7 @@ header {
   margin-bottom: 2px;
 }
 .weather-row span:last-child { color: var(--text); font-weight: 500; }
+.sun-status { font-variant-numeric: tabular-nums; }
 
 /* ── Tomorrow forecast ── */
 .weather-tomorrow {
