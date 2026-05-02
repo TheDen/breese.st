@@ -258,9 +258,10 @@ async function loadCommunityFeeds() {
       .filter(i => i.title);
   }
 
-  const eventsInner = eventItems.length
-    ? feedItems(eventItems) + staticLink('https://www.eventbrite.com.au/d/australia--brunswick/events/', 'Eventbrite · Brunswick', 'More events nearby')
-    : staticLink(BASE_MERRIBEK + '/exploring-merri-bek/events/whats-on/', "Merri-bek What's On", 'merri-bek.vic.gov.au');
+  const eventsInner = (eventItems.length ? feedItems(eventItems) : '')
+    + `<div class="community-links">`
+    + staticLink('https://www.eventbrite.com.au/d/australia--brunswick/events/', 'Eventbrite · Brunswick', 'Upcoming events nearby')
+    + `</div>`;
 
   const newsInner = (newsItems.length ? feedItems(newsItems) : '')
     + `<div class="community-links">`
@@ -268,9 +269,20 @@ async function loadCommunityFeeds() {
     + staticLink('https://conversations.merri-bek.vic.gov.au/', 'Open Projects', 'Have your say')
     + `</div>`;
 
+  const servicesInner = `<div class="community-links">`
+    + staticLink(BASE_MERRIBEK + '/living-in-merri-bek/waste-and-recycling/bins-and-collection-services/hard-waste-collection/', 'Hard Waste Collection', 'Free collection')
+    + `</div>`;
+
+  const utilitiesInner = `<div class="community-links">`
+    + staticLink('https://www.citipower.com.au/power-outages-and-emergencies/live-outage-map/?postcode=3056', 'CitiPower Outages', 'Electricity (Brunswick area)')
+    + staticLink('https://faults.yvw.com.au/', 'Yarra Valley Water', 'Outages & works')
+    + `</div>`;
+
   el.innerHTML =
     section('🗓', 'Local Events', eventsInner) +
     section('🏛', 'Council', newsInner) +
+    section('🏘', 'Council Services', servicesInner) +
+    section('💧', 'Utilities', utilitiesInner) +
     section('🚧', 'Traffic &amp; Works', staticLink(VICROADS_URL, 'VicRoads Live Traffic', 'Disruptions &amp; roadworks'));
 }
 
