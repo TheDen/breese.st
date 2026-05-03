@@ -1,4 +1,10 @@
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
   --bg: #eeece6;
@@ -7,7 +13,7 @@
   --text-2: #555;
   --text-3: #888;
   --border: #e5e2da;
-  --shadow: 0 1px 3px rgba(0,0,0,.07), 0 2px 8px rgba(0,0,0,.05);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.07), 0 2px 8px rgba(0, 0, 0, 0.05);
   --radius: 12px;
   --green: #1a5c35;
   --green-mid: #2e7d4f;
@@ -16,7 +22,11 @@
   --amber-bg: #fff8ee;
   --red: #991b1b;
   --gap: 14px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -67,10 +77,16 @@ header {
 }
 
 /* weather spans cols 1–2; air quality auto-places in col 3 */
-.card-weather   { grid-column: 1 / 3; }
+.card-weather {
+  grid-column: 1 / 3;
+}
 /* community and places span all 3 cols */
-.card-community { grid-column: 1 / -1; }
-.card-places    { grid-column: 1 / -1; }
+.card-community {
+  grid-column: 1 / -1;
+}
+.card-places {
+  grid-column: 1 / -1;
+}
 
 @media (max-width: 760px) {
   .dashboard {
@@ -80,7 +96,9 @@ header {
   }
   .card-weather,
   .card-community,
-  .card-places { grid-column: auto; }
+  .card-places {
+    grid-column: auto;
+  }
 }
 
 /* ── Card ── */
@@ -102,8 +120,15 @@ header {
   color: var(--text-3);
   margin-bottom: 14px;
 }
-.loading { color: var(--text-3); font-size: 0.85rem; }
-.error-msg { font-size: 0.82rem; color: var(--text-2); line-height: 1.5; }
+.loading {
+  color: var(--text-3);
+  font-size: 0.85rem;
+}
+.error-msg {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  line-height: 1.5;
+}
 
 /* ── Weather card ── */
 .weather-inner {
@@ -118,7 +143,10 @@ header {
   gap: 12px;
   flex-shrink: 0;
 }
-.weather-icon { font-size: 2.8rem; line-height: 1; }
+.weather-icon {
+  font-size: 2.8rem;
+  line-height: 1;
+}
 .weather-temp {
   font-size: 2.6rem;
   font-weight: 700;
@@ -126,10 +154,28 @@ header {
   line-height: 1;
   color: var(--amber);
 }
-.weather-unit { font-size: 1.1rem; font-weight: 400; color: var(--text-3); }
-.weather-feels { font-size: 0.75rem; color: var(--text-3); margin-top: 4px; }
-.weather-desc  { font-size: 0.88rem; font-weight: 500; color: var(--text-2); margin-top: 2px; }
-.weather-realfeel { font-size: 0.78rem; color: var(--text-3); margin-top: 4px; font-style: italic; }
+.weather-unit {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--text-3);
+}
+.weather-feels {
+  font-size: 0.75rem;
+  color: var(--text-3);
+  margin-top: 4px;
+}
+.weather-desc {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-2);
+  margin-top: 2px;
+}
+.weather-realfeel {
+  font-size: 0.78rem;
+  color: var(--text-3);
+  margin-top: 4px;
+  font-style: italic;
+}
 
 .weather-stats {
   display: grid;
@@ -138,7 +184,11 @@ header {
   flex: 1;
   min-width: 180px;
 }
-.weather-row { display: flex; flex-direction: column; font-size: 0.78rem; }
+.weather-row {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.78rem;
+}
 .weather-row span:first-child {
   font-size: 0.66rem;
   color: var(--text-3);
@@ -146,15 +196,30 @@ header {
   letter-spacing: 0.05em;
   margin-bottom: 2px;
 }
-.weather-row span:last-child { color: var(--text); font-weight: 500; }
-.sun-status { font-variant-numeric: tabular-nums; }
+.weather-row span:last-child {
+  color: var(--text);
+  font-weight: 500;
+}
+.sun-status {
+  font-variant-numeric: tabular-nums;
+}
 
 /* ── UV ── */
-.uv-low     { color: #16a34a; }
-.uv-mod     { color: #ca8a04; }
-.uv-high    { color: #ea580c; }
-.uv-vhigh   { color: var(--red); }
-.uv-extreme { color: #7e22ce; }
+.uv-low {
+  color: #16a34a;
+}
+.uv-mod {
+  color: #ca8a04;
+}
+.uv-high {
+  color: #ea580c;
+}
+.uv-vhigh {
+  color: var(--red);
+}
+.uv-extreme {
+  color: #7e22ce;
+}
 
 /* ── Tomorrow strip ── */
 .weather-tomorrow {
@@ -175,10 +240,20 @@ header {
   color: var(--text-3);
   flex-shrink: 0;
 }
-.tmr-icon  { font-size: 1rem; }
-.tmr-desc  { color: var(--text-2); flex: 1; }
-.tmr-range { font-weight: 500; color: var(--text); }
-.tmr-rain  { color: var(--text-3); }
+.tmr-icon {
+  font-size: 1rem;
+}
+.tmr-desc {
+  color: var(--text-2);
+  flex: 1;
+}
+.tmr-range {
+  font-weight: 500;
+  color: var(--text);
+}
+.tmr-rain {
+  color: var(--text-3);
+}
 
 /* ── Air quality card ── */
 .aq-grid {
@@ -199,14 +274,34 @@ header {
   flex-shrink: 0;
   color: #fff;
 }
-.aqi-good    { background: #16a34a; }
-.aqi-fair    { background: #ca8a04; }
-.aqi-mod     { background: #ea580c; }
-.aqi-poor    { background: var(--red); }
-.aqi-vpoor   { background: #7f1d1d; }
-.aqi-extreme { background: #7e22ce; }
-.aq-label    { font-size: 1.05rem; font-weight: 600; color: var(--text); }
-.aq-sublabel { font-size: 0.72rem; color: var(--text-3); margin-top: 2px; }
+.aqi-good {
+  background: #16a34a;
+}
+.aqi-fair {
+  background: #ca8a04;
+}
+.aqi-mod {
+  background: #ea580c;
+}
+.aqi-poor {
+  background: var(--red);
+}
+.aqi-vpoor {
+  background: #7f1d1d;
+}
+.aqi-extreme {
+  background: #7e22ce;
+}
+.aq-label {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.aq-sublabel {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  margin-top: 2px;
+}
 .aq-stats {
   display: flex;
   gap: 20px;
@@ -214,7 +309,11 @@ header {
   padding-top: 12px;
   border-top: 1px solid var(--border);
 }
-.aq-row { display: flex; flex-direction: column; font-size: 0.78rem; }
+.aq-row {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.78rem;
+}
 .aq-row span:first-child {
   font-size: 0.66rem;
   color: var(--text-3);
@@ -222,8 +321,13 @@ header {
   letter-spacing: 0.05em;
   margin-bottom: 2px;
 }
-.aq-row span:last-child { color: var(--text); font-weight: 500; }
-.pollen-high { color: #ea580c; }
+.aq-row span:last-child {
+  color: var(--text);
+  font-weight: 500;
+}
+.pollen-high {
+  color: #ea580c;
+}
 
 /* ── Community card ── */
 .community-sections {
@@ -232,7 +336,10 @@ header {
   gap: 20px 24px;
 }
 @media (max-width: 480px) {
-  .community-sections { grid-template-columns: 1fr 1fr; gap: 16px 12px; }
+  .community-sections {
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 12px;
+  }
 }
 .community-section-title {
   font-size: 0.68rem;
@@ -259,13 +366,18 @@ header {
   background: var(--bg);
   text-decoration: none;
   color: inherit;
-  transition: background .12s, transform .1s;
+  transition:
+    background 0.12s,
+    transform 0.1s;
 }
 .community-link:hover {
   background: var(--green-bg);
   transform: translateX(2px);
 }
-.community-link-info { flex: 1; min-width: 0; }
+.community-link-info {
+  flex: 1;
+  min-width: 0;
+}
 .community-link-label {
   font-size: 0.81rem;
   font-weight: 500;
@@ -285,10 +397,12 @@ header {
   font-size: 0.72rem;
   color: var(--text-3);
   opacity: 0;
-  transition: opacity .12s;
+  transition: opacity 0.12s;
   flex-shrink: 0;
 }
-.community-link:hover .community-link-arrow { opacity: 1; }
+.community-link:hover .community-link-arrow {
+  opacity: 1;
+}
 
 /* ── Places card ── */
 .places-card-header {
@@ -299,7 +413,9 @@ header {
   flex-wrap: wrap;
   margin-bottom: 14px;
 }
-.places-card-header .card-label { margin-bottom: 0; }
+.places-card-header .card-label {
+  margin-bottom: 0;
+}
 
 .places-filters {
   display: flex;
@@ -311,10 +427,20 @@ header {
 }
 
 @media (max-width: 520px) {
-  .places-card-header { flex-direction: column; }
-  .places-filters { justify-content: flex-start; width: 100%; }
-  .filter-search-wrap { flex: 1; }
-  #places-search, #places-search:focus { width: 100%; }
+  .places-card-header {
+    flex-direction: column;
+  }
+  .places-filters {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .filter-search-wrap {
+    flex: 1;
+  }
+  #places-search,
+  #places-search:focus {
+    width: 100%;
+  }
 }
 
 .filter-search-wrap {
@@ -338,9 +464,14 @@ header {
   color: var(--text);
   width: 160px;
   outline: none;
-  transition: border-color .15s, width .2s;
+  transition:
+    border-color 0.15s,
+    width 0.2s;
 }
-#places-search:focus { border-color: var(--green-mid); width: 200px; }
+#places-search:focus {
+  border-color: var(--green-mid);
+  width: 200px;
+}
 
 .search-clear {
   position: absolute;
@@ -354,8 +485,13 @@ header {
   line-height: 1;
   border-radius: 50%;
 }
-.search-clear:hover { color: var(--text); background: var(--border); }
-.search-clear.hidden { display: none; }
+.search-clear:hover {
+  color: var(--text);
+  background: var(--border);
+}
+.search-clear.hidden {
+  display: none;
+}
 
 .filter-slider-wrap {
   display: flex;
@@ -369,7 +505,9 @@ header {
   min-width: 80px;
   text-align: right;
 }
-.slider-label strong { color: var(--green); }
+.slider-label strong {
+  color: var(--green);
+}
 
 #places-dist-slider {
   -webkit-appearance: none;
@@ -383,15 +521,19 @@ header {
 }
 #places-dist-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 16px; height: 16px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--green);
   cursor: pointer;
-  transition: transform .1s;
+  transition: transform 0.1s;
 }
-#places-dist-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+#places-dist-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
 #places-dist-slider::-moz-range-thumb {
-  width: 16px; height: 16px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--green);
   cursor: pointer;
@@ -422,17 +564,38 @@ header {
   font-family: inherit;
   color: var(--text-2);
   cursor: pointer;
-  transition: background .12s, border-color .12s, color .12s;
+  transition:
+    background 0.12s,
+    border-color 0.12s,
+    color 0.12s;
   white-space: nowrap;
 }
-.kw-chip:hover  { background: var(--green-bg); border-color: var(--green-mid); color: var(--green); }
-.kw-chip.active { background: var(--green); border-color: var(--green); color: #fff; }
+.kw-chip:hover {
+  background: var(--green-bg);
+  border-color: var(--green-mid);
+  color: var(--green);
+}
+.kw-chip.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
 
-.places-summary { font-size: 0.82rem; color: var(--text-2); margin-bottom: 14px; }
-.places-summary strong { color: var(--green); }
+.places-summary {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  margin-bottom: 14px;
+}
+.places-summary strong {
+  color: var(--green);
+}
 
-.places-group { margin-bottom: 18px; }
-.places-group:last-child { margin-bottom: 0; }
+.places-group {
+  margin-bottom: 18px;
+}
+.places-group:last-child {
+  margin-bottom: 0;
+}
 .places-group-title {
   font-size: 0.68rem;
   font-weight: 600;
@@ -449,7 +612,9 @@ header {
   gap: 5px;
 }
 @media (max-width: 480px) {
-  .places-list { grid-template-columns: 1fr; }
+  .places-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 .place-item {
@@ -462,17 +627,28 @@ header {
   background: var(--green-bg);
   text-decoration: none;
   color: inherit;
-  transition: background .12s, transform .1s;
+  transition:
+    background 0.12s,
+    transform 0.1s;
 }
-.place-item:hover { background: #d4edda; transform: translateX(2px); }
+.place-item:hover {
+  background: #d4edda;
+  transform: translateX(2px);
+}
 .place-dot {
-  width: 7px; height: 7px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
   background: var(--green);
 }
-.place-dot.closing-soon { background: #d97706; }
-.place-item-info { flex: 1; min-width: 0; }
+.place-dot.closing-soon {
+  background: #d97706;
+}
+.place-item-info {
+  flex: 1;
+  min-width: 0;
+}
 .place-name {
   font-size: 0.82rem;
   font-weight: 500;
@@ -488,7 +664,10 @@ header {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.place-meta .closing-soon { color: #d97706; font-weight: 500; }
+.place-meta .closing-soon {
+  color: #d97706;
+  font-weight: 500;
+}
 .place-right {
   display: flex;
   flex-direction: column;
@@ -496,13 +675,25 @@ header {
   gap: 2px;
   flex-shrink: 0;
 }
-.place-dist { font-size: 0.7rem; color: var(--text-3); }
-.place-link-icon { font-size: 0.65rem; color: var(--text-3); opacity: 0; transition: opacity .12s; }
-.place-item:hover .place-link-icon { opacity: 1; }
+.place-dist {
+  font-size: 0.7rem;
+  color: var(--text-3);
+}
+.place-link-icon {
+  font-size: 0.65rem;
+  color: var(--text-3);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.place-item:hover .place-link-icon {
+  opacity: 1;
+}
 .places-note {
   margin-top: 14px;
   font-size: 0.72rem;
   color: var(--text-3);
   line-height: 1.6;
 }
-.places-note a { color: var(--text-3); }
+.places-note a {
+  color: var(--text-3);
+}
